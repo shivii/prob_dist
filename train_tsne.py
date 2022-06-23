@@ -144,7 +144,7 @@ def train_fn(disc_A, disc_B, gen_B, gen_A, loader, opt_disc, opt_gen, l1, mse, d
     #print("shape real", real.shape)
     
     # initialize various vectors
-    tsne_emb_realA = torch.zeros((0, 4096), dtype=torch.float32)
+    tsne_ftA = torch.zeros((0, 4096), dtype=torch.float32)
     
     tsne_embeddingsA = torch.zeros((0, 4096), dtype=torch.float32)
     
@@ -152,7 +152,7 @@ def train_fn(disc_A, disc_B, gen_B, gen_A, loader, opt_disc, opt_gen, l1, mse, d
     
     labels_A = torch.zeros((0,1), dtype=torch.uint8)
     
-    tsne_emb_realB = torch.zeros((0, 4096), dtype=torch.float32)
+    tsne_ftB = torch.zeros((0, 4096), dtype=torch.float32)
     
     tsne_embeddingsB = torch.zeros((0, 4096), dtype=torch.float32)
     
@@ -215,15 +215,41 @@ def train_fn(disc_A, disc_B, gen_B, gen_A, loader, opt_disc, opt_gen, l1, mse, d
             # TSNE metric    
             # dimentionality reduction from 4D(1,3,256,256) to (256,256) 
             
+            # get features and embedding from VGG19---------------------------------------- ###
+            
+            featA = vgg_ft(A)
+            featB = vgg_ft(B)
+            featCycleA = vgg_ft(cycle_A)
+            featCycleB = vgg_ft(cycle_B)
+            
+            # tsne for B, Cycle B
+            # tsne for A, Cycle A    
+            
+            tsne_embeddingsA = torch.cat((tsne_embeddingsA, featA.detach().cpu()), 0)
+            labels_A = torch.cat((labels_A, real),0)
+            tsne_embeddingsA = torch.cat((tsne_embeddingsA, featCycleA.detach().cpu()), 0)
+            labels_A = torch.cat((labels_A, fake),0)
+            
+            tsne_embeddingsB = torch.cat((tsne_embeddingsB, featB.detach().cpu()), 0)
+            labels_B = torch.cat((labels_B, real),0)
+            tsne_embeddingsB = torch.cat((tsne_embeddingsB, featCycleB.detach().cpu()), 0)
+            labels_B = torch.cat((labels_B, fake),0)
+            
+            #print("A vgg features shape:", tsne_embeddingsA.shape)
+            #print("B vgg features shape:", tsne_embeddingsB.shape)
+            #print("A vgg labels shape:", labels_A.shape)
+            #print("B vgg labels shape:", labels_B.shape)
+            
+            #### --------------------------------------------------------------------------- ###
+            """
             A_im = transforms.Grayscale(num_output_channels=1)(A)
             cycleA_im = transforms.Grayscale(num_output_channels=1)(cycle_A)
             A_im = torch.flatten(A_im)
             A_im = torch.unsqueeze(A_im, 0)
             cycleA_im = torch.flatten(cycleA_im)
             cycleA_im = torch.unsqueeze(cycleA_im, 0)
-            #print("Grayscale 2Shapes : ", A_im.shape, cycleA_im.shape,)
-            #cycleB_im = transforms.Grayscale(num_output_channels=1)(cycleB_im)
-            #print("Sqeeze 2Shapes : ", A_im.shape, cycleA_im.shape,)
+            #print("Grayscale 2Shapes A: ", A_im.shape, cycleA_im.shape,)
+            #print("Sqeeze 2Shapes A: ", A_im.shape, cycleA_im.shape,)
 
             B_im = transforms.Grayscale(num_output_channels=1)(B)            
             cycleB_im = transforms.Grayscale(num_output_channels=1)(cycle_B)
@@ -231,7 +257,11 @@ def train_fn(disc_A, disc_B, gen_B, gen_A, loader, opt_disc, opt_gen, l1, mse, d
             B_im = torch.unsqueeze(B_im, 0)
             cycleB_im = torch.flatten(cycleB_im)
             cycleB_im = torch.unsqueeze(cycleB_im, 0)
-        
+            #print("Grayscale 2Shapes B: ", B_im.shape, cycleB_im.shape,)
+            #print("Sqeeze 2Shapes B: ", B_im.shape, cycleB_im.shape,)
+
+            #cycleB_im = transforms.Grayscale(num_output_channels=1)(cycleB_im)
+
 
             imagesA = torch.cat((imagesA, A_im.detach().cpu()), 0)
             labels_A = torch.cat((labels_A, real),0)
@@ -243,6 +273,9 @@ def train_fn(disc_A, disc_B, gen_B, gen_A, loader, opt_disc, opt_gen, l1, mse, d
             labels_B = torch.cat((labels_B, real),0)
             imagesB = torch.cat((imagesB, cycleB_im.detach().cpu()), 0)
             labels_B = torch.cat((labels_B, fake),0)
+            """
+            #print("image A:", imagesA.shape)
+            #print("image B:", imagesB.shape)
             
             # IDENTITY LOSS (remove these for efficiency if you set lambda_identity=0)
             #identity_B = gen_B(B)
@@ -277,7 +310,7 @@ def train_fn(disc_A, disc_B, gen_B, gen_A, loader, opt_disc, opt_gen, l1, mse, d
 
         loop.set_postfix(A_real=A_reals/(idx+1), A_fake=A_fakes/(idx+1))
     
-    
+    """
     # COMPUTE TSNE FOR A
     tsne_embeddingsA = np.array(imagesA)
         
@@ -304,7 +337,35 @@ def train_fn(disc_A, disc_B, gen_B, gen_A, loader, opt_disc, opt_gen, l1, mse, d
 
     distanceB = tsne_loss(txB, tyB)
     
-    #output_tsne_dataB = get_tsne(tsne_embeddingsB, n_images = 1000)
+    """
+    # COMPUTE TSNE FOR A
+    tsne_ftA= np.array(tsne_embeddingsA)
+    print("tsne ft A:", tsne_ftA.shape)
+        
+    tsne_dataA = get_tsne(tsne_ftA, labels_A, epoch)
+    tsne_dataA = scale_to_01_range(tsne_dataA)
+    
+    txA = tsne_dataA[:,0]
+    tyA = tsne_dataA[:,1]
+    
+    plot_representations(txA, tyA, labels_A, epoch)
+
+    distanceA = tsne_loss(txA, tyA)
+    
+    # COMPUTE TSNE FOR B
+    tsne_ftB= np.array(tsne_embeddingsB)
+    print("tsne ft B:", tsne_ftB.shape)
+        
+    tsne_dataB = get_tsne(tsne_embeddingsB, labels_B, epoch)
+    tsne_dataB = scale_to_01_range(tsne_dataB)
+    
+    txB = tsne_dataB[:,0]
+    tyB = tsne_dataB[:,1]
+    
+    plot_representations(txB, tyB, labels_B, epoch)
+
+    distanceB = tsne_loss(txB, tyB)
+
     
     cl_Ao, cl_Bo,  = cycle_A_loss.item(), cycle_B_loss.item()
     d_Ao, d_Bo =  D_A_loss.item(), D_B_loss.item()
@@ -312,6 +373,8 @@ def train_fn(disc_A, disc_B, gen_B, gen_A, loader, opt_disc, opt_gen, l1, mse, d
     con_Ao, con_Bo =  0, 0
     g_losses =  G_loss.item()
     d_losses = D_loss.item()
+    
+
     
     return cl_Ao, cl_Bo, d_Ao, d_Bo, g_Ao, g_Bo, con_Ao, con_Bo, g_losses, d_losses, distanceA, distanceB
 
