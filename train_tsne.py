@@ -23,9 +23,6 @@ from math import sqrt
 from statistics import mean
 import argparse
 
-
-args = {}
-
 def dataset_name():
     return "horse2zebra/"
 
@@ -165,6 +162,7 @@ def train_fn(disc_A, disc_B, gen_B, gen_A, loader, opt_disc, opt_gen, l1, mse, d
     
     #train loop
     for idx, (B, A) in enumerate(loop):
+        
         #print("idx: ", idx)
         B = B.to(config.DEVICE)
         A = A.to(config.DEVICE)
@@ -352,14 +350,9 @@ def main():
             config.CHECKPOINT_CRITIC_B, disc_B, opt_disc, config.LEARNING_RATE,
         )
 
-    preprocess = transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    ])
+
     dataset = A_B_Dataset(
-        root_A=train_dir_a(), root_B=train_dir_b(), transform=preprocess
+        root_A=train_dir_a(), root_B=train_dir_b(), transform=config.transforms
     )
     #val_dataset = A_B_Dataset(
     #   root_A=config.VAL_DIR+"A", root_B=config.VAL_DIR+"B", transform=config.transforms

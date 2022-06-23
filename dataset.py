@@ -24,10 +24,9 @@ class A_B_Dataset(Dataset):
 
         A_path = os.path.join(self.root_A, A_img)
         B_path = os.path.join(self.root_B, B_img)
-
         A_img = np.array(Image.open(A_path).convert("RGB"))
         B_img = np.array(Image.open(B_path).convert("RGB"))
-
+        
         if self.transform:
             augmentations = self.transform(image=A_img, image0=B_img)
             A_img = augmentations["image"]
