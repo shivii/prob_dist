@@ -496,7 +496,7 @@ def main():
     plt.ylabel('Loss')
     plt.legend()
     plt.savefig('tsne.jpg')
-    plt.show()
+    #plt.show()
     
     
 if __name__ == "__main__":
