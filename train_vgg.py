@@ -63,6 +63,9 @@ valid_iterator = data.DataLoader(valid_data,
                                 batch_size=32)
 test_iterator = data.DataLoader(test_data,
                                 batch_size=32)
+
+# Load pretrained VGG19
+print("-------------Load VGG19------------------------")
 vgg19 = models.vgg19(pretrained=True)
 vgg19.to(device)
 #print(vgg19)
@@ -95,6 +98,7 @@ def validate(model, test_dataloader):
     return val_loss, val_accuracy
 # training function
 def fit(model, train_dataloader):
+    print("---------In training------")
     model.train()
     train_running_loss = 0.0
     train_running_correct = 0

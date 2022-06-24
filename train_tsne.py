@@ -23,10 +23,12 @@ from math import sqrt
 from statistics import mean
 import argparse
 from torchvision import models
+import os
 
+args = {}
 
 def dataset_name():
-    return "horse2zebra/"
+    return args.dataset + "/"
 
 def data_dir_path():
     return "dataset/" + dataset_name()
@@ -41,7 +43,22 @@ def val_dir():
     return data_dir_path() + "test"
 
 def trained_model_path():
-    return "vgg19_23_06.pt"
+    return args.trained_model
+
+def create_output_folder():
+    try:
+        output_folder = output_image_path()
+        os.makedirs(output_folder)
+        print("Successfully created output folder ", output_folder)
+    except OSError:
+        print(OSError)
+    return output_folder
+
+def get_output_suffix(dataset):
+    return dataset + "_images"
+
+def output_image_path():
+    return "output_" + get_output_suffix(args.dataset) + "/"
 
 
 class VGGLoss(nn.Module):
@@ -302,11 +319,24 @@ def train_fn(disc_A, disc_B, gen_B, gen_A, loader, opt_disc, opt_gen, l1, mse, d
         g_scaler.step(opt_gen)
         g_scaler.update()
 
-        if idx % 80 == 0:
-            img_A = 'tsne_images/genA_' + str(idx) + '_'+ str(epoch) + '.png'
-            img_B = 'tsne_images/genB_' + str(idx) + '_'+ str(epoch) + '.png'
-            save_image(fake_A*0.5+0.5, img_A)
-            save_image(fake_B*0.5+0.5, img_B)
+        if idx % 100 == 0:            
+            img_A = output_image_path() + 'A_' + str(epoch) + '_'+ str(idx) + '.png'
+            img_B = output_image_path() + 'B_' + str(epoch) + '_'+ str(idx) + '.png'
+            #save_image(fake_A*0.5+0.5, img_A)
+            #save_image(fake_B*0.5+0.5, img_B)
+            
+            # generate samples A->B, B->A
+            fakeB = gen_B(A)*0.5+0.5
+            fakeA = gen_A(B)*0.5+0.5
+            
+            new_im1 = torch.cat([A, fakeB], dim = 0)
+            new_im2 = torch.cat([B, fakeA], dim = 0)
+            
+            grid_img1 = make_grid(new_im1, nrow=2)
+            grid_img2 = make_grid(new_im2, nrow=2)
+            save_image( grid_img1, img_A)
+            save_image( grid_img2 , img_B)
+            
             #save_image(fake_A*0.5+0.5, f"saved_images/A_{idx}.png")
             #save_image(fake_B*0.5+0.5, f"saved_images/B_{idx}.png")
 
@@ -381,7 +411,8 @@ def train_fn(disc_A, disc_B, gen_B, gen_A, loader, opt_disc, opt_gen, l1, mse, d
     return cl_Ao, cl_Bo, d_Ao, d_Bo, g_Ao, g_Bo, con_Ao, con_Bo, g_losses, d_losses, distanceA, distanceB
 
 def main():
-    torch.cuda.set_device(1)
+    torch.cuda.set_device(args.gpu)
+    output_folder = create_output_folder()
     disc_A = Discriminator(in_channels=3).to(config.DEVICE)
     disc_B = Discriminator(in_channels=3).to(config.DEVICE)
     gen_B = Generator(img_channels=3, num_residuals=9).to(config.DEVICE)
@@ -498,6 +529,21 @@ def main():
     plt.savefig('tsne.jpg')
     #plt.show()
     
+ 
     
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        description="Unpaired Image-to-Image Translation using TSNE with cycle gan")
+    parser.add_argument("--gpu", type=int, default=0,
+                        help="gpu index")
+    parser.add_argument("--dataset", type=str, default="horse2zebra", help="dataset name")
+    parser.add_argument("--trained_model", type=str, default="vgg19_23_06.pt", help="dataset name")
+    parser.add_argument("--numEpochs", type=int, default=100, help="number of epochs")
+    global args
+    args = parser.parse_args()
+    print(args)
+
 if __name__ == "__main__":
+    parse_arguments()
     main()
+
