@@ -14,7 +14,7 @@ from tqdm.notebook import tqdm, trange
 
 
 def get_dataset_path():
-    return "vgg_data/apple2orange/"
+    return "vgg_data/monet2photo/"
 
 # check GPU availability
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -129,7 +129,7 @@ for epoch in trange(50, desc="Epochs"):
 
     if val_epoch_loss < best_valid_loss:
             best_valid_loss = val_epoch_loss
-            torch.save(vgg19.state_dict(), 'vgg19_23_06.pt')
+            torch.save(vgg19.state_dict(), 'vgg19_24_06_mon2ph.pt')
             print("saved !!!")
 
 
