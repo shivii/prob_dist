@@ -413,6 +413,7 @@ def train_fn(disc_A, disc_B, gen_B, gen_A, loader, opt_disc, opt_gen, l1, mse, d
 def main():
     torch.cuda.set_device(args.gpu)
     output_folder = create_output_folder()
+    #print("output image path :", output_image_path())
     disc_A = Discriminator(in_channels=3).to(config.DEVICE)
     disc_B = Discriminator(in_channels=3).to(config.DEVICE)
     gen_B = Generator(img_channels=3, num_residuals=9).to(config.DEVICE)
