@@ -29,7 +29,7 @@ def dataset_name():
     return "horse2zebra/"
 
 def data_dir_path():
-    return "/home/apoorvkumar/shivi/Phd/dataset/" + dataset_name()
+    return "dataset/" + dataset_name()
 
 def train_dir_a():
     return data_dir_path() + "trainA/"
