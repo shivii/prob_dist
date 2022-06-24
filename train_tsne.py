@@ -22,6 +22,8 @@ import pandas as pd
 from math import sqrt
 from statistics import mean
 import argparse
+from torchvision import models
+
 
 def dataset_name():
     return "horse2zebra/"
@@ -39,16 +41,16 @@ def val_dir():
     return data_dir_path() + "test"
 
 def trained_model_path():
-    return "/home/apoorvkumar/shivi/Phd/Project/TSNE/vgg19_17_01.pt"
+    return "vgg19_23_06.pt"
 
 
 class VGGLoss(nn.Module):
     def __init__(self):
         super().__init__()
-        vgg19_config = [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 256, 'M', 512, 512,
-                                512, 512, 'M', 512, 512, 512, 512, 'M']
-        vgg19_layers = get_vgg_layers(vgg19_config, batch_norm=True)
-        model = VGG(vgg19_layers,  2)
+        #vgg19_config = [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 256, 'M', 512, 512,
+        #                        512, 512, 'M', 512, 512, 512, 512, 'M']
+        #vgg19_layers = get_vgg_layers(vgg19_config, batch_norm=True)
+        model = models.vgg19()
         
         #print(model)
         model.load_state_dict(torch.load(trained_model_path()))
@@ -79,7 +81,7 @@ def get_tsne(data, labels, i):
     tsne_data = tsne.fit_transform(data)
     return tsne_data
     
-def plot_representations(tx, ty, labels, i):
+def plot_representations(tx, ty, labels, i, name):
     classes = [1,0]
     # initialize a matplotlib plot
         
@@ -104,7 +106,7 @@ def plot_representations(tx, ty, labels, i):
     
     # build a legend using the labels we set previously
     ax.legend(loc='best')
-    plot_name = "tsne_projections/T-SNE projection_" + str(i)
+    plot_name = "tsne_projections/projection_" + str(i) + name
     plt.savefig(plot_name)    
     # finally, show the plot
     #plt.show()
@@ -348,7 +350,7 @@ def train_fn(disc_A, disc_B, gen_B, gen_A, loader, opt_disc, opt_gen, l1, mse, d
     txA = tsne_dataA[:,0]
     tyA = tsne_dataA[:,1]
     
-    plot_representations(txA, tyA, labels_A, epoch)
+    plot_representations(txA, tyA, labels_A, epoch, "A")
 
     distanceA = tsne_loss(txA, tyA)
     
@@ -362,7 +364,7 @@ def train_fn(disc_A, disc_B, gen_B, gen_A, loader, opt_disc, opt_gen, l1, mse, d
     txB = tsne_dataB[:,0]
     tyB = tsne_dataB[:,1]
     
-    plot_representations(txB, tyB, labels_B, epoch)
+    plot_representations(txB, tyB, labels_B, epoch, "B")
 
     distanceB = tsne_loss(txB, tyB)
 
