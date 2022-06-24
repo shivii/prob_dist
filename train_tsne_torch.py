@@ -385,6 +385,7 @@ def train_fn(disc_A, disc_B, gen_B, gen_A, loader, opt_disc, opt_gen, l1, mse, d
     return cl_Ao, cl_Bo, d_Ao, d_Bo, g_Ao, g_Bo, con_Ao, con_Bo, g_losses, d_losses, distanceA, distanceB
 
 def main():
+    torch.cuda.set_device(1)
     disc_A = Discriminator(in_channels=3).to(config.DEVICE)
     disc_B = Discriminator(in_channels=3).to(config.DEVICE)
     gen_B = Generator(img_channels=3, num_residuals=9).to(config.DEVICE)
