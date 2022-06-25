@@ -45,6 +45,9 @@ def val_dir():
 def trained_model_path():
     return args.trained_model
 
+def trained_GAN_path():
+    return args.pretrained_GAN + "/"
+
 def create_output_folder():
     try:
         output_folder = output_image_path()
@@ -123,7 +126,7 @@ def plot_representations(tx, ty, labels, i, name):
     
     # build a legend using the labels we set previously
     ax.legend(loc='best')
-    plot_name = "tsne_projections/projection_" + str(i) + name
+    plot_name = output_image_path() + "projection_" + str(i) + name
     plt.savefig(plot_name)    
     # finally, show the plot
     #plt.show()
@@ -434,18 +437,18 @@ def main():
     L1 = nn.L1Loss()
     mse = nn.MSELoss()
 
-    if config.LOAD_MODEL:
+    if args.load_model:
         load_checkpoint(
-            config.CHECKPOINT_GEN_A, gen_A, opt_gen, config.LEARNING_RATE,
+            trained_GAN_path()+config.CHECKPOINT_GEN_A, gen_A, opt_gen, config.LEARNING_RATE,
         )
         load_checkpoint(
-            config.CHECKPOINT_GEN_B, gen_B, opt_gen, config.LEARNING_RATE,
+            trained_GAN_path()+config.CHECKPOINT_GEN_B, gen_B, opt_gen, config.LEARNING_RATE,
         )
         load_checkpoint(
-            config.CHECKPOINT_CRITIC_A, disc_A, opt_disc, config.LEARNING_RATE,
+            trained_GAN_path()+config.CHECKPOINT_CRITIC_A, disc_A, opt_disc, config.LEARNING_RATE,
         )
         load_checkpoint(
-            config.CHECKPOINT_CRITIC_B, disc_B, opt_disc, config.LEARNING_RATE,
+            trained_GAN_path()+config.CHECKPOINT_CRITIC_B, disc_B, opt_disc, config.LEARNING_RATE,
         )
 
 
@@ -508,10 +511,10 @@ def main():
         list_distB.append(distanceB)
 
         if config.SAVE_MODEL:
-            save_checkpoint(gen_A, opt_gen, filename=config.CHECKPOINT_GEN_A)
-            save_checkpoint(gen_B, opt_gen, filename=config.CHECKPOINT_GEN_B)
-            save_checkpoint(disc_A, opt_disc, filename=config.CHECKPOINT_CRITIC_A)
-            save_checkpoint(disc_B, opt_disc, filename=config.CHECKPOINT_CRITIC_B)
+            save_checkpoint(gen_A, opt_gen, filename=output_image_path() + config.CHECKPOINT_GEN_A)
+            save_checkpoint(gen_B, opt_gen, filename=output_image_path() + config.CHECKPOINT_GEN_B)
+            save_checkpoint(disc_A, opt_disc, filename=output_image_path() + config.CHECKPOINT_CRITIC_A)
+            save_checkpoint(disc_B, opt_disc, filename=output_image_path() + config.CHECKPOINT_CRITIC_B)
 
     # plots
     plt.figure(figsize=(10, 7))
@@ -527,7 +530,8 @@ def main():
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
     plt.legend()
-    plt.savefig('tsne.jpg')
+    fig_name = output_image_path() + args.dataset + "_tsne.jpg"
+    plt.savefig(fig_name)
     #plt.show()
     
  
@@ -538,7 +542,10 @@ def parse_arguments():
     parser.add_argument("--gpu", type=int, default=0,
                         help="gpu index")
     parser.add_argument("--dataset", type=str, default="horse2zebra", help="dataset name")
+    parser.add_argument("--load_model", type=bool, default=False, help="load GAN model pretrained")
     parser.add_argument("--trained_model", type=str, default="vgg19_23_06.pt", help="dataset name")
+    parser.add_argument("--pretrained_GAN", type=str, default="", help="pretrained GAN")
+
     parser.add_argument("--numEpochs", type=int, default=100, help="number of epochs")
     global args
     args = parser.parse_args()
