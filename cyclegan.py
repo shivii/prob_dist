@@ -167,8 +167,6 @@ def train_fn(disc_A, disc_B, gen_B, gen_A, loader, opt_disc, opt_gen, l1, mse, d
     d_Ao, d_Bo =  D_A_loss.item(), D_B_loss.item()
     g_Ao, g_Bo =  loss_G_A.item(), loss_G_B.item()
     
-
-    
     return cl_Ao, cl_Bo, d_Ao, d_Bo, g_Ao, g_Bo,
 
 def main():
