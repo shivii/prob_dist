@@ -29,7 +29,7 @@ def dataset_name():
     return "horse2zebra/"
 
 def data_dir_path():
-    return "dataset/" + dataset_name()
+    return "../../dataset/" + dataset_name()
 
 def train_dir_a():
     return data_dir_path() + "trainA/"
@@ -41,7 +41,7 @@ def val_dir():
     return data_dir_path() + "test"
 
 def trained_model_path():
-    return "vgg19_23_06.pt"
+    return "vgg19_24_06_hor2ze.pt"
 
 
 class VGGLoss(nn.Module):
@@ -381,7 +381,7 @@ def train_fn(disc_A, disc_B, gen_B, gen_A, loader, opt_disc, opt_gen, l1, mse, d
     return cl_Ao, cl_Bo, d_Ao, d_Bo, g_Ao, g_Bo, con_Ao, con_Bo, g_losses, d_losses, distanceA, distanceB
 
 def main():
-    torch.cuda.set_device(1)
+    torch.cuda.set_device(0)
     disc_A = Discriminator(in_channels=3).to(config.DEVICE)
     disc_B = Discriminator(in_channels=3).to(config.DEVICE)
     gen_B = Generator(img_channels=3, num_residuals=9).to(config.DEVICE)
