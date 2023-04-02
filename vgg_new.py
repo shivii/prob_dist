@@ -198,29 +198,29 @@ def train(model, iterator, optimizer, criterion, device):
     epoch_acc = 0
 
     model.train()
-    print("-->>>starting training")
+#    print("-->>>starting training")
     for (x, y) in tqdm(iterator, desc="Training", leave=False):
-        print("-->> inside training for loop")
+#        print("-->> inside training for loop")
         x = x.to(device)
-        print("-->> loaded x")
+#        print("-->> loaded x")
         y = y.to(device)
-        print("-->> loaded y")
+#        print("-->> loaded y")
         optimizer.zero_grad()
-        print("--> optimizer run")
+#        print("--> optimizer run")
         y_pred, _ = model(x)
-        print("-->> pred run")
-        #loss = criterion(y_pred, y)
+#        print("-->> pred run")
+        loss = criterion(y_pred, y)
 
-        #acc = calculate_accuracy(y_pred, y)
+        acc = calculate_accuracy(y_pred, y)
         #print("acc:")
-        #loss.backward()
+        loss.backward()
 
-        #optimizer.step()
+        optimizer.step()
 
-        #epoch_loss += loss.item()
-        #epoch_acc += acc.item()
+        epoch_loss += loss.item()
+        epoch_acc += acc.item()
 
-    #return epoch_loss / len(iterator), epoch_acc / len(iterator)
+    return epoch_loss / len(iterator), epoch_acc / len(iterator)
 
 def evaluate(model, iterator, criterion, device):
 
@@ -264,7 +264,7 @@ class SquarePad:
             return F.pad(image, padding, 255, 'constant') 
 
 def get_dataset_path():
-    return "/home/apoorvkumar/shivi/Phd/Project/TSNE/vgg_data/horse2zebra/"
+    return "../dataset_train_vgg/horse2zebra/"
 
             
 if __name__ == "__main__":
@@ -359,26 +359,26 @@ if __name__ == "__main__":
     best_valid_loss = float('inf')
 
     for epoch in trange(EPOCHS, desc="Epochs"):
-        print("Inside for loop")
+        #print("Inside for loop")
         start_time = time.monotonic()
 
         
-        #train_loss, train_acc = train(model, train_iterator, optimizer, criterion, device)
-        train(model, train_iterator, optimizer, criterion, device)
+        train_loss, train_acc = train(model, train_iterator, optimizer, criterion, device)
+        #train(model, train_iterator, optimizer, criterion, device)
         
-        #valid_loss, valid_acc = evaluate(model, valid_iterator, criterion, device)
+        valid_loss, valid_acc = evaluate(model, valid_iterator, criterion, device)
 
-        #if valid_loss < best_valid_loss:
-        #    best_valid_loss = valid_loss
-        #    torch.save(model.state_dict(), 'vgg19_17_01.pt')
+        if valid_loss < best_valid_loss:
+            best_valid_loss = valid_loss
+            torch.save(model.state_dict(), 'vgg19_3_4_23.pt')
 
-        #end_time = time.monotonic()
+        end_time = time.monotonic()
 
-        #epoch_mins, epoch_secs = epoch_time(start_time, end_time)
+        epoch_mins, epoch_secs = epoch_time(start_time, end_time)
         
         #print(f'Epoch: {epoch+1:02} | Epoch Time: {epoch_mins}m {epoch_secs}s')
-        #print(f'\tTrain Loss: {train_loss:.3f} | Train Acc: {train_acc*100:.2f}%')
-        #print(f'\t Val. Loss: {valid_loss:.3f} |  Val. Acc: {valid_acc*100:.2f}%')
-    print("Outside for loop")
+        print(f'\tTrain Loss: {train_loss:.3f} | Train Acc: {train_acc*100:.2f}%')
+        print(f'\t Val. Loss: {valid_loss:.3f} |  Val. Acc: {valid_acc*100:.2f}%')
+    #print("Outside for loop")
 
 
