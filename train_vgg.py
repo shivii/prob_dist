@@ -63,7 +63,9 @@ valid_iterator = data.DataLoader(valid_data,
                                 batch_size=32)
 test_iterator = data.DataLoader(test_data,
                                 batch_size=32)
-vgg19 = models.vgg19(pretrained=True)
+vgg19 = models.vgg19(pretrained=False)
+vgg19 = vgg19.load_state_dict(torch.load("vgg19_23_06.pt"))
+vgg19.eval() 
 vgg19.to(device)
 #print(vgg19)
 # change the number of classes 
@@ -126,11 +128,15 @@ for epoch in trange(50, desc="Epochs"):
     train_accuracy.append(train_epoch_accuracy)
     val_loss.append(val_epoch_loss)
     val_accuracy.append(val_epoch_accuracy)
-
+    
+    
     if val_epoch_loss < best_valid_loss:
             best_valid_loss = val_epoch_loss
-            torch.save(vgg19.state_dict(), 'vgg19_23_06.pt')
+            torch.save(vgg19.state_dict(), 'vgg19_3_4_23_pytorch.pt')
+            print("Training loss, accuracy:", train_epoch_loss, train_epoch_accuracy)
+            print("Validation loss, accuracy", val_epoch_loss, val_epoch_accuracy)
             print("saved !!!")
+            
 
 
 end = time.time()
