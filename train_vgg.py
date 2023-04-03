@@ -65,7 +65,7 @@ test_iterator = data.DataLoader(test_data,
                                 batch_size=32)
 vgg19 = models.vgg19(pretrained=False)
 vgg19 = vgg19.load_state_dict(torch.load("vgg19_23_06.pt"))
-vgg19.eval() 
+#vgg19.eval() 
 vgg19.to(device)
 #print(vgg19)
 # change the number of classes 
