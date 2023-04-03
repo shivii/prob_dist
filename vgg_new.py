@@ -264,7 +264,7 @@ class SquarePad:
             return F.pad(image, padding, 255, 'constant') 
 
 def get_dataset_path():
-    return "../dataset_train_vgg/horse2zebra/"
+    return "../vgg_data/horse2zebra/"
 
             
 if __name__ == "__main__":
@@ -329,7 +329,7 @@ if __name__ == "__main__":
     OUTPUT_DIM = 2
     vgg19_layers = get_vgg_layers(vgg19_config, batch_norm=True)
     model = VGG(vgg19_layers, OUTPUT_DIM)
-    #model.load_state_dict(torch.load('vgg16_new.pt', map_location='cpu'))
+    model.load_state_dict(torch.load('vgg19_3_4_23.pt', map_location='cpu'))
     model.eval()
     #print(model)
 
@@ -354,7 +354,7 @@ if __name__ == "__main__":
 
     # training
     print("-----------Training:---------------")
-    EPOCHS = 20
+    EPOCHS = 100
 
     best_valid_loss = float('inf')
 
