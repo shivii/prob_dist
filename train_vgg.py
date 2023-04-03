@@ -14,7 +14,7 @@ from tqdm.notebook import tqdm, trange
 
 
 def get_dataset_path():
-    return "vgg_data/apple2orange/"
+        return "../vgg_data/horse2zebra/"
 
 # check GPU availability
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
