@@ -121,7 +121,7 @@ val_loss , val_accuracy = [], []
 start = time.time()
 best_valid_loss = float('inf')
 
-for epoch in trange(50, desc="Epochs"):
+for epoch in trange(100, desc="Epochs"):
     train_epoch_loss, train_epoch_accuracy = fit(vgg16, train_iterator)
     val_epoch_loss, val_epoch_accuracy = validate(vgg16, valid_iterator)
     train_loss.append(train_epoch_loss)
