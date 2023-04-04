@@ -63,9 +63,9 @@ valid_iterator = data.DataLoader(valid_data,
                                 batch_size=32)
 test_iterator = data.DataLoader(test_data,
                                 batch_size=32)
-vgg19 = models.vgg19(pretrained=False)
-vgg19.load_state_dict(torch.load("vgg19_23_06.pt"))
-vgg19.eval()
+vgg19 = models.vgg19(pretrained=True)
+#vgg19.load_state_dict(torch.load("vgg19_23_06.pt"))
+#vgg19.eval()
 vgg19.to(device)
 #print(vgg19)
 # change the number of classes 
@@ -121,7 +121,7 @@ val_loss , val_accuracy = [], []
 start = time.time()
 best_valid_loss = float('inf')
 
-for epoch in trange(50, desc="Epochs"):
+for epoch in trange(100, desc="Epochs"):
     train_epoch_loss, train_epoch_accuracy = fit(vgg19, train_iterator)
     val_epoch_loss, val_epoch_accuracy = validate(vgg19, valid_iterator)
     train_loss.append(train_epoch_loss)
