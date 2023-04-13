@@ -137,8 +137,6 @@ for epoch in trange(100, desc="Epochs"):
             print("Validation loss, accuracy", val_epoch_loss, val_epoch_accuracy)
             print("saved !!!")
             
-
-
 end = time.time()
 print((end-start)/60, 'minutes')
 plt.figure(figsize=(10, 7))
